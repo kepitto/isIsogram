@@ -1,9 +1,18 @@
 #include "isogram.h"
 #include "string.h"
 
-bool isIgnored(char c) {
-    return c == ' ';
+bool islowerCaseLetter(char c){
+    return  (c >= 'a' && c <= 'z');
 }
+
+bool isANumber(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+bool isIgnored(char c) {
+    return !(islowerCaseLetter(c) || isANumber(c));
+}
+
 
 char toLowerCase(char c){
     if (c >= 'A' && c <= 'Z') {
@@ -13,23 +22,33 @@ char toLowerCase(char c){
 }
 
 bool is_isogram(const char phrase[]){
+
+       //occurences[65] means number of 'A's
+    int occurences[256] = { 0 };
+
     int len = strlen(phrase);
     for (int i=0; i<len; i++) {
         char currentChar = toLowerCase(phrase[i]);
         if (!isIgnored(currentChar)){
             //check all other chars against currentChar
             //find if there are more than 1 occurences
-            int occurences = 0;
-            for(int j=0; j<len; j++){
-                if (toLowerCase(phrase[j]) == currentChar) {
-                    occurences++;
+            occurences[currentChar]++;
+        }
+    }
+    int expectedOccurence = -1;
+    for(int i = 0; i < 256; i++){
+        if (!isIgnored(i)) {
+            if (occurences[i] != 0){
+            if(expectedOccurence == -1){
+                expectedOccurence = occurences[i];
+            } else {
+                int currentOccurence = occurences[i];
+                if (currentOccurence != expectedOccurence){
+                    return false;
                 }
-            }
-            if (occurences > 1) { //found duplicate characters --> no isogram
-                return false;
+            }  
             }
         }
     }
-    // we didnt find duplicates, must be an isogram
     return true;
 }
